@@ -12,21 +12,16 @@ class GETRequest:
         res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)
         print(res.status_code)
         assert res.status_code == 200, "Incorrect status code"
-        return res.json()
+        try:
+            return res.json()
+        except:
+            print("Invalid JSON")
 
     def check_pagination(self, api_response):
         try:
             print(api_response['meta']['pagination'])
         except KeyError as err:
             print("pagination not present")
-
-    def validate_json(self, api_response):
-        try:
-            json_response1= json.dumps(api_response)
-            json.loads(json_response1)
-        except ValueError as err:
-            return False
-        return True
 
     def validate_email(self, api_response):
         for i in api_response['data']:
@@ -45,8 +40,6 @@ class GETRequest:
 g1 = GETRequest("gorest.co.in/", "public/v1/users?", "access-token=")
 api_response = g1.invoke_get_method()
 g1.check_pagination(api_response)
-value = g1.validate_json(api_response)
-print(value)
 g1.validate_email(api_response)
 g1.validate_attributes(api_response)
 
