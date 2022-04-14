@@ -21,23 +21,60 @@ class GETRequest:
         except:
             print("Invalid JSON")
 
-    def verify_HTTP_response_code(self):
+    def verify_HTTP_success_response_code(self):
+        #Checks for 200 status code
         try:
             res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)  # Invokes the GET API
             if res.status_code == 200:                              #Checks for the desired status code
                 print("\nReceived API response successfully")
-            elif res.status_code == 401:                            #verifies if authentication is absent
-                print("\nAuthentication required")
-            elif res.status_code == 403:                            #verifies if request is unauthorized
-                print("\nUnauthorized request")
-            elif res.status_code == 500 :                           #verifies internal server error
-                print("\nInternal Server Error")
             else:
-                print("\nSome error occured")
+                print("\nReceived incorrect response code")
         except:
-            print("\nCould not get the API response")
+            print("\n Response code was incorrect")
 
+    def verify_incorrect_authentication_status_code(self):
+        #Checks for aunthentication error
+        try:
+            res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)
+            if res.status_code != 401:
+                print("\nReceived expected API status code without incorrect authentication")
+            else:
+                print("\nAuthentication is required")
+        except:
+            print("\nAuthentication error occured")
 
+    def verify_unauthorized_request_status_code(self):
+        #Checks for authorization error
+        try:
+            res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)
+            if res.status_code != 403:
+                print("\nReceived expected API status code without incorrect authorization")
+            else:
+                print("\nAuthorization is required")
+        except:
+            print("\nForbidden request")
+
+    def verify_interal_server_error_response_code(self):
+        #Checks for internal server error
+        try:
+            res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)
+            if res.status_code != 500:
+                print("\nReceived expected API status code without internal server error")
+            else:
+                print("\nInternal server error")
+        except:
+            print("\nInternal server error occured")
+
+    def verify_service_availability(self):
+        #Cheks for service unavilable error
+        try:
+            res = requests.get("https://" + self.baseUrl + self.endpoint + self.parameter)
+            if res.status_code != 503:
+                print("\nReceived expected API status code without service unavailability")
+            else:
+                print("\nService is unaviailable")
+        except:
+            print("\nThe server is not ready to handle the request.")
 
     def check_pagination(self, api_response):
         # Verifies pagination field present in the GET response
@@ -72,26 +109,28 @@ class GETRequest:
             print("\n Error occured", e)
 
     def api_without_authentication(self):
+        #Verify API GET without passing access token
         res = requests.get("https://" + self.baseUrl + self.endpoint)
         status_code = res.status_code
         try:
-            if status_code != 200:                         #Checks if incorrect status code is obtained when no authentication is provided
+            if status_code != 200:
                 print("\nObtained correct status code without giving access token")
             else:
                 print("\nReceived incorrect status code as authentication was not provided")
         except:
-            print("\n Error occured in GET API when executed without authentication")
+            print("\n Error occured in GET API")
 
     def verify_non_SSL(self):
+        #Verify API GET call with incorrect protocol
         res = requests.get("http://" + self.baseUrl + self.endpoint + self.parameter)
         status_code = res.status_code
         try:
-            if status_code != 200:                         #Checks if incorrect status code is obtained when wrong protocol is provided
+            if status_code != 200:
                 print("\nObtained correct status code while providing incorrect protocol")
             else:
-                print("\nReceived incorrect status code on providing incorrect protocol")
+                print("\nReceived incorrect status code while providing incorrect protocol")
         except:
-            print("\n Error occured in GET API when executed with wrong protocol")
+            print("\n Error occured in GET API")
 
 
 
@@ -101,7 +140,15 @@ g1 = GETRequest("gorest.co.in/", "public/v1/users?", "access-token=")
 
 api_response = g1.invoke_get_method()
 
-g1. verify_HTTP_response_code()
+g1. verify_HTTP_success_response_code()
+
+g1.verify_incorrect_authentication_status_code()
+
+g1.verify_unauthorized_request_status_code()
+
+g1.verify_interal_server_error_response_code()
+
+g1.verify_service_availability()
 
 g1.check_pagination(api_response)
 
@@ -112,5 +159,3 @@ g1.validate_attributes(api_response)
 g1.api_without_authentication()
 
 g1.verify_non_SSL()
-
-
